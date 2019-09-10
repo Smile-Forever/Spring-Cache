@@ -3,7 +3,7 @@ package online.zxb.cache.service;
 import online.zxb.cache.entity.Employee;
 import online.zxb.cache.mapper.EmployeeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,7 +12,11 @@ import org.springframework.stereotype.Service;
  * @Author zxb
  * @Date 2019/8/29 15:57
  * @Version 1.0
+ *
+ * @CacheConfig(cacheNames = "emp") : 公共配置：以下所有的value="xxx" 都可以不用写
+ *
  */
+@CacheConfig(cacheNames = "emp")
 @Service
 public class EmployeeService {
 
@@ -98,15 +102,45 @@ public class EmployeeService {
         return emp;
     }
 
+    /**
+     * 修改数据库数据，更新缓存
+     * @param employee
+     * @return
+     */
+    @CachePut(value = "emp",key = "#result.id")
+        public Employee update(Employee employee){
+        System.out.println("updateEmp:" + employee);
+        employeeMapper.update(employee);
+        return employee;
+    }
+
+
     public void insert(Employee employee){
         employeeMapper.insert(employee);
     }
 
-    public void update(Employee employee){
-        employeeMapper.update(employee);
-    }
 
-    public void delete(Integer id){
-        employeeMapper.delete(id);
+    /**
+     * @CacheEvict: 清除缓存 allEntries= true：清除所有缓存 key:清除指定的缓存数据
+     *
+     * @param id
+     */
+    @CacheEvict(value = "emp",allEntries = true)
+    public void deleteEmp(Integer id){
+        System.out.println("deleteEmp:"+id);
+//        employeeMapper.delete(id);
+    }
+    @Caching(
+        cacheable =  {
+            @Cacheable(value = "emp",key = "#lastName")
+    },
+        put = {
+            @CachePut(value = "emp",key = "#result.id"),
+            @CachePut(value = "emp",key = "#result.email")
+        }
+    )
+    public Employee getByLastName(String lastName){
+        Employee employee = employeeMapper.getByLastName(lastName);
+        return employee;
     }
 }

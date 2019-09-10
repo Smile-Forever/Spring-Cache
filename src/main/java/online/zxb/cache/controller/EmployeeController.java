@@ -1,8 +1,7 @@
 package online.zxb.cache.controller;
 
-import online.zxb.cache.service.EmployeeService;
 import online.zxb.cache.entity.Employee;
-import org.apache.ibatis.annotations.Delete;
+import online.zxb.cache.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
-    @RequestMapping("/emp/{id}")
+    @GetMapping("/emp/{id}")
     public Employee getEmp(@PathVariable("id") Integer id){
         Employee emp = employeeService.getEmp(id);
+        return emp;
+    }
+    @GetMapping("/emp")
+    public Employee updateEmp(Employee employee){
+        Employee emp = employeeService.update(employee);
         return emp;
     }
 
@@ -27,12 +31,16 @@ public class EmployeeController {
     public void insert(Employee employee){
         employeeService.insert(employee);
     }
-    @PutMapping("/emp/update")
-    public void update(Employee employee){
-        employeeService.update(employee);
+
+    @GetMapping("/deleteEmp/{id}")
+    public String delete(@PathVariable("id") Integer id){
+        employeeService.deleteEmp(id);
+        return "SUCCESS";
     }
-    @DeleteMapping("/emp/{id}")
-    public void delete(@PathVariable("id") Integer id){
-        employeeService.delete(id);
+
+    @GetMapping("/select/{lastName}")
+    public Employee getByLastName(@PathVariable("lastName") String lastName){
+        Employee employee = employeeService.getByLastName(lastName);
+        return employee;
     }
 }
